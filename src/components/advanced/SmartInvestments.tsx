@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Pie, Target, Zap } from 'lucide-react';
+import { TrendingUp, ChartPie, Target, Zap } from 'lucide-react';
 
 export function SmartInvestments() {
   const investments = [
@@ -82,7 +81,7 @@ export function SmartInvestments() {
 
         <div className="grid grid-cols-3 gap-4 mt-6">
           <div className="text-center p-4 bg-slate-800/30 rounded-lg border border-indigo-500/20">
-            <Pie className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
+            <ChartPie className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
             <h4 className="text-indigo-200 font-medium">Portfolio</h4>
             <p className="text-slate-400 text-sm">AI Managed</p>
           </div>
