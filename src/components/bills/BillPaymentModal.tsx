@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Smartphone, Wifi, Zap, Gift, Tv, Gamepad2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,48 +14,24 @@ interface BillPaymentModalProps {
   serviceType: string;
   serviceIcon: React.ReactNode;
   serviceName: string;
-  onSuccess?: () => void;
 }
 
-export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSuccess }: BillPaymentModalProps) {
+export function BillPaymentModal({ serviceType, serviceIcon, serviceName }: BillPaymentModalProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [operators, setOperators] = useState<any[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState('');
   const [amount, setAmount] = useState('');
   const [customerId, setCustomerId] = useState('');
-  const [country, setCountry] = useState('NG');
-
-  useEffect(() => {
-    if (open) {
-      loadOperators();
-    }
-  }, [open, serviceType, country]);
-
-  const loadOperators = async () => {
-    try {
-      const { data } = await supabase
-        .from('reloadly_products')
-        .select('*')
-        .eq('service_type', serviceType)
-        .eq('country', country)
-        .eq('is_active', true);
-
-      setOperators(data || []);
-    } catch (error) {
-      console.error('Error loading operators:', error);
-    }
-  };
+  const [paymentMethod, setPaymentMethod] = useState('wallet');
 
   const handlePayment = async () => {
-    if (!selectedOperator || !amount || !customerId) {
-      toast.error('Please fill in all required fields');
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error('Please enter a valid amount');
       return;
     }
 
-    if (parseFloat(amount) <= 0) {
-      toast.error('Please enter a valid amount');
+    if (!customerId) {
+      toast.error('Please enter customer information');
       return;
     }
 
@@ -63,57 +39,55 @@ export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSucc
     try {
       const { data, error } = await supabase.functions.invoke('reloadly-services', {
         body: {
-          action: 'purchase',
-          service_type: serviceType,
-          customer_id: customerId,
+          service_type: serviceType as any,
           amount: parseFloat(amount),
-          operator_id: parseInt(selectedOperator),
-          payment_method: 'wallet'
+          customer_id: customerId,
+          payment_method: paymentMethod
         }
       });
 
       if (error) throw error;
 
       if (data.status === 'success') {
-        toast.success(`${serviceName} purchased successfully!`);
+        toast.success('Bill payment processed successfully!');
         setOpen(false);
         setAmount('');
         setCustomerId('');
-        setSelectedOperator('');
-        onSuccess?.();
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error(error.message || 'Payment failed');
+      console.error('Bill payment error:', error);
+      toast.error('Failed to process bill payment');
     } finally {
       setLoading(false);
     }
   };
 
-  const getCustomerIdPlaceholder = () => {
+  const getPlaceholder = () => {
     switch (serviceType) {
       case 'airtime':
       case 'data':
-        return 'Phone number (e.g., +2348012345678)';
+        return 'Enter phone number';
       case 'electricity':
-        return 'Meter number';
+        return 'Enter meter number';
       case 'tv':
-        return 'Decoder number/Smart card number';
+        return 'Enter decoder number';
       default:
-        return 'Customer ID';
+        return 'Enter customer ID';
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="h-24 flex-col space-y-2 bg-slate-800/50 border-amber-500/20 hover:bg-amber-500/10 hover:border-amber-500/40 text-white"
-        >
-          {serviceIcon}
-          <span className="text-sm">{serviceName}</span>
-        </Button>
+        <Card className="p-6 bg-slate-800/30 border-amber-500/20 backdrop-blur-sm hover:bg-slate-700/40 transition-all cursor-pointer group">
+          <div className="text-center space-y-3">
+            <div className="text-amber-400 group-hover:scale-110 transition-transform">
+              {serviceIcon}
+            </div>
+            <h3 className="text-white font-medium">{serviceName}</h3>
+            <p className="text-slate-400 text-sm">Pay with ease</p>
+          </div>
+        </Card>
       </DialogTrigger>
       <DialogContent className="bg-slate-900/95 border-amber-500/20">
         <DialogHeader>
@@ -122,43 +96,12 @@ export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSucc
         
         <div className="space-y-4">
           <div>
-            <Label className="text-slate-300">Country</Label>
-            <Select value={country} onValueChange={setCountry}>
-              <SelectTrigger className="bg-slate-800/50 border-amber-500/20 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-amber-500/20">
-                <SelectItem value="NG">Nigeria</SelectItem>
-                <SelectItem value="KE">Kenya</SelectItem>
-                <SelectItem value="GH">Ghana</SelectItem>
-                <SelectItem value="ZA">South Africa</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-slate-300">Service Provider</Label>
-            <Select value={selectedOperator} onValueChange={setSelectedOperator}>
-              <SelectTrigger className="bg-slate-800/50 border-amber-500/20 text-white">
-                <SelectValue placeholder="Select provider" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-amber-500/20">
-                {operators.map((operator) => (
-                  <SelectItem key={operator.id} value={operator.reloadly_product_id.toString()}>
-                    {operator.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
             <Label htmlFor="customerId" className="text-slate-300">
-              {getCustomerIdPlaceholder().split('(')[0]}
+              {getPlaceholder().replace('Enter ', '')}
             </Label>
             <Input
               id="customerId"
-              placeholder={getCustomerIdPlaceholder()}
+              placeholder={getPlaceholder()}
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
               className="bg-slate-800/50 border-amber-500/20 text-white"
@@ -166,7 +109,7 @@ export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSucc
           </div>
 
           <div>
-            <Label htmlFor="amount" className="text-slate-300">Amount (USD)</Label>
+            <Label htmlFor="amount" className="text-slate-300">Amount</Label>
             <Input
               id="amount"
               type="number"
@@ -177,9 +120,17 @@ export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSucc
             />
           </div>
 
-          <div className="text-sm text-slate-400 bg-slate-800/30 p-3 rounded">
-            <p>Fee: 0.369% of amount</p>
-            <p>Total: ${(parseFloat(amount || '0') * 1.00369).toFixed(2)}</p>
+          <div>
+            <Label className="text-slate-300">Payment Method</Label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="bg-slate-800/50 border-amber-500/20 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-amber-500/20">
+                <SelectItem value="wallet">Wallet Balance</SelectItem>
+                <SelectItem value="card">Bank Card</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button 
@@ -187,7 +138,7 @@ export function BillPaymentModal({ serviceType, serviceIcon, serviceName, onSucc
             disabled={loading}
             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
           >
-            {loading ? 'Processing...' : 'Pay Now'}
+            {loading ? 'Processing...' : `Pay ${serviceName}`}
           </Button>
         </div>
       </DialogContent>

@@ -1,12 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Wallet, CreditCard, Smartphone, TrendingUp, Plus, Send, ArrowUpRight } from 'lucide-react';
+import { Wallet, CreditCard, Smartphone, TrendingUp, Plus, Send, ArrowUpRight, Brain, Shield, Users, Globe, Zap, Target } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 interface WalletData {
   id: string;
@@ -34,6 +34,15 @@ export default function Dashboard() {
     { icon: Send, label: 'Send Money', color: 'bg-blue-500' },
     { icon: Smartphone, label: 'Pay Bills', color: 'bg-purple-500' },
     { icon: CreditCard, label: 'Get Card', color: 'bg-orange-500' },
+  ];
+
+  const revolutionaryActions = [
+    { icon: Brain, label: 'AI Advisor', color: 'bg-purple-500', description: 'Get personalized financial wisdom' },
+    { icon: Globe, label: 'Bureau de Change', color: 'bg-green-500', description: 'Exchange currencies instantly' },
+    { icon: TrendingUp, label: 'Smart Invest', color: 'bg-blue-500', description: 'AI-powered investments' },
+    { icon: Shield, label: 'Biometric Security', color: 'bg-red-500', description: 'Advanced protection' },
+    { icon: Users, label: 'Community Finance', color: 'bg-orange-500', description: 'Ubuntu savings circles' },
+    { icon: Target, label: 'Financial Goals', color: 'bg-indigo-500', description: 'Achieve your dreams' },
   ];
 
   const currencySymbols: Record<string, string> = {
@@ -134,18 +143,57 @@ export default function Dashboard() {
     <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-          <h1 className="text-2xl font-bold mb-2">
-            Welcome back, {user?.user_metadata?.first_name || 'User'}! 👋
-          </h1>
-          <p className="text-green-100 mb-4">
-            Your financial journey continues. What would you like to do today?
-          </p>
-          <div className="flex items-center gap-2 text-green-100">
-            <TrendingUp className="h-4 w-4" />
-            <span className="text-sm">Portfolio ready for growth</span>
+        <div className="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 rounded-2xl p-6 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="relative z-10">
+            <h1 className="text-2xl font-bold mb-2">
+              Welcome back, {user?.user_metadata?.first_name || 'Revolutionary'}! 🚀
+            </h1>
+            <p className="text-green-100 mb-4">
+              Your Ubuntu financial revolution continues. Together we rise, together we prosper.
+            </p>
+            <div className="flex items-center gap-2 text-green-100">
+              <TrendingUp className="h-4 w-4" />
+              <span className="text-sm">Transforming Africa's Financial Future</span>
+            </div>
           </div>
         </div>
+
+        {/* Revolutionary Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              Revolutionary Features
+            </CardTitle>
+            <CardDescription>Advanced technologies that surpass traditional banking</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {revolutionaryActions.map((action, index) => (
+                <Link key={index} to="/advanced-dashboard">
+                  <Button
+                    variant="outline"
+                    className="h-20 flex-col gap-2 border-2 hover:border-primary w-full"
+                  >
+                    <div className={`p-2 rounded-full ${action.color}`}>
+                      <action.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-center">{action.label}</span>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-4 text-center">
+              <Link to="/advanced-dashboard">
+                <Button className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-600">
+                  Explore All Features
+                  <ArrowUpRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

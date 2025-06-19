@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,7 @@ import Savings from "./pages/Savings";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AdvancedDashboard from "./pages/AdvancedDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +43,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/advanced-dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdvancedDashboard />
                   </ProtectedRoute>
                 }
               />
