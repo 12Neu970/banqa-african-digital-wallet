@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
+import RealTimeWallet from "./pages/RealTimeWallet";
 import Cards from "./pages/Cards";
 import Bills from "./pages/Bills";
 import Jobs from "./pages/Jobs";
@@ -59,6 +61,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Wallet />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/real-time-wallet"
+                element={
+                  <ProtectedRoute>
+                    <RealTimeWallet />
                   </ProtectedRoute>
                 }
               />

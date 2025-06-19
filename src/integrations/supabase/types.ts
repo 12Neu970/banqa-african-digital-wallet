@@ -110,6 +110,81 @@ export type Database = {
           },
         ]
       }
+      api_configurations: {
+        Row: {
+          api_key_encrypted: string
+          api_secret_encrypted: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key_encrypted: string
+          api_secret_encrypted?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key_encrypted?: string
+          api_secret_encrypted?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bank_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          balance: number
+          bank_code: string
+          bank_name: string
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_type"]
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          balance?: number
+          bank_code: string
+          bank_name: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_type"]
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          balance?: number
+          bank_code?: string
+          bank_name?: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_type"]
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bill_payments: {
         Row: {
           amount: number
@@ -273,6 +348,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      crypto_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          crypto_currency: Database["public"]["Enums"]["crypto_currency"]
+          id: string
+          is_active: boolean
+          private_key_encrypted: string
+          public_key: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          crypto_currency: Database["public"]["Enums"]["crypto_currency"]
+          id?: string
+          is_active?: boolean
+          private_key_encrypted: string
+          public_key: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          crypto_currency?: Database["public"]["Enums"]["crypto_currency"]
+          id?: string
+          is_active?: boolean
+          private_key_encrypted?: string
+          public_key?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
       }
       deposits: {
         Row: {
@@ -671,6 +785,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      real_time_transactions: {
+        Row: {
+          account_id: string | null
+          account_type: Database["public"]["Enums"]["account_type"]
+          amount: number
+          blockchain_hash: string | null
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          provider_reference: string | null
+          status: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          account_type: Database["public"]["Enums"]["account_type"]
+          amount: number
+          blockchain_hash?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          provider_reference?: string | null
+          status?: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          account_type?: Database["public"]["Enums"]["account_type"]
+          amount?: number
+          blockchain_hash?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          provider_reference?: string | null
+          status?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       reloadly_products: {
         Row: {
@@ -1153,6 +1315,10 @@ export type Database = {
         }
         Returns: number
       }
+      generate_account_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -1176,9 +1342,19 @@ export type Database = {
       }
     }
     Enums: {
+      account_type: "bank" | "crypto"
       application_status: "pending" | "reviewing" | "accepted" | "rejected"
       card_status: "active" | "frozen" | "blocked" | "expired"
       card_type: "virtual" | "physical"
+      crypto_currency:
+        | "BTC"
+        | "ETH"
+        | "USDT"
+        | "USDC"
+        | "BNB"
+        | "ADA"
+        | "DOT"
+        | "MATIC"
       currency_type:
         | "NGN"
         | "KES"
@@ -1326,9 +1502,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_type: ["bank", "crypto"],
       application_status: ["pending", "reviewing", "accepted", "rejected"],
       card_status: ["active", "frozen", "blocked", "expired"],
       card_type: ["virtual", "physical"],
+      crypto_currency: [
+        "BTC",
+        "ETH",
+        "USDT",
+        "USDC",
+        "BNB",
+        "ADA",
+        "DOT",
+        "MATIC",
+      ],
       currency_type: [
         "NGN",
         "KES",

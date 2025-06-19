@@ -1,297 +1,162 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Wallet, CreditCard, Smartphone, TrendingUp, Plus, Send, ArrowUpRight, Brain, Shield, Users, Globe, Zap, Target } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-
-interface WalletData {
-  id: string;
-  currency: string;
-  balance: number;
-}
-
-interface TransactionData {
-  id: string;
-  type: string;
-  amount: number;
-  currency: string;
-  description: string;
-  created_at: string;
-}
+import { Wallet, Zap, Receipt } from 'lucide-react';
+import { AfricanPattern } from '@/components/ui/african-pattern';
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const [wallets, setWallets] = useState<WalletData[]>([]);
-  const [transactions, setTransactions] = useState<TransactionData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const quickActions = [
-    { icon: Plus, label: 'Add Money', color: 'bg-green-500' },
-    { icon: Send, label: 'Send Money', color: 'bg-blue-500' },
-    { icon: Smartphone, label: 'Pay Bills', color: 'bg-purple-500' },
-    { icon: CreditCard, label: 'Get Card', color: 'bg-orange-500' },
-  ];
-
-  const revolutionaryActions = [
-    { icon: Brain, label: 'AI Advisor', color: 'bg-purple-500', description: 'Get personalized financial wisdom' },
-    { icon: Globe, label: 'Bureau de Change', color: 'bg-green-500', description: 'Exchange currencies instantly' },
-    { icon: TrendingUp, label: 'Smart Invest', color: 'bg-blue-500', description: 'AI-powered investments' },
-    { icon: Shield, label: 'Biometric Security', color: 'bg-red-500', description: 'Advanced protection' },
-    { icon: Users, label: 'Community Finance', color: 'bg-orange-500', description: 'Ubuntu savings circles' },
-    { icon: Target, label: 'Financial Goals', color: 'bg-indigo-500', description: 'Achieve your dreams' },
-  ];
-
-  const currencySymbols: Record<string, string> = {
-    NGN: '₦',
-    KES: 'KSh',
-    GHS: 'GH₵',
-    ZAR: 'R',
-    XOF: 'CFA',
-    USDT: '$',
-    USD: '$',
-    EUR: '€',
-    GBP: '£'
-  };
-
-  const currencyFlags: Record<string, string> = {
-    NGN: '🇳🇬',
-    KES: '🇰🇪',
-    GHS: '🇬🇭',
-    ZAR: '🇿🇦',
-    XOF: '🇨🇮',
-    USDT: '💵',
-    USD: '🇺🇸',
-    EUR: '🇪🇺',
-    GBP: '🇬🇧'
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchWallets();
-      fetchTransactions();
-    }
-  }, [user]);
-
-  const fetchWallets = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('wallets')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_active', true);
-
-      if (error) throw error;
-      setWallets(data || []);
-    } catch (error) {
-      console.error('Error fetching wallets:', error);
-      toast.error('Failed to load wallets');
-    }
-  };
-
-  const fetchTransactions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-      setTransactions(data || []);
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      toast.error('Failed to load transactions');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatBalance = (amount: number, currency: string) => {
-    const symbol = currencySymbols[currency] || '';
-    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
-
-  const formatTransactionAmount = (amount: number, currency: string, type: string) => {
-    const symbol = currencySymbols[currency] || '';
-    const prefix = ['deposit', 'transfer'].includes(type) ? '+' : '-';
-    return `${prefix}${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
-
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="container mx-auto px-4 py-6">
-          <div className="animate-pulse space-y-6">
-            <div className="h-32 bg-slate-200 rounded-2xl"></div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-20 bg-slate-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 rounded-2xl p-6 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10">
-            <h1 className="text-2xl font-bold mb-2">
-              Welcome back, {user?.user_metadata?.first_name || 'Revolutionary'}! 🚀
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-amber-900/20 to-slate-900 relative overflow-hidden">
+        <AfricanPattern variant="kente" opacity={0.05} />
+        
+        <div className="relative z-10 p-6 space-y-8">
+          {/* Hero Section */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-red-600 bg-clip-text text-transparent">
+                Welcome to Banqa
+              </span>
             </h1>
-            <p className="text-green-100 mb-4">
-              Your Ubuntu financial revolution continues. Together we rise, together we prosper.
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Africa's most advanced digital bank, powered by AI and blockchain technology
             </p>
-            <div className="flex items-center gap-2 text-green-100">
-              <TrendingUp className="h-4 w-4" />
-              <span className="text-sm">Transforming Africa's Financial Future</span>
-            </div>
           </div>
-        </div>
 
-        {/* Revolutionary Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-500" />
-              Revolutionary Features
-            </CardTitle>
-            <CardDescription>Advanced technologies that surpass traditional banking</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {revolutionaryActions.map((action, index) => (
-                <Link key={index} to="/advanced-dashboard">
-                  <Button
-                    variant="outline"
-                    className="h-20 flex-col gap-2 border-2 hover:border-primary w-full"
-                  >
-                    <div className={`p-2 rounded-full ${action.color}`}>
-                      <action.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="text-xs font-medium text-center">{action.label}</span>
-                  </Button>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-4 text-center">
-              <Link to="/advanced-dashboard">
-                <Button className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-600">
-                  Explore All Features
-                  <ArrowUpRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="h-20 flex-col gap-2 border-2 hover:border-primary"
-            >
-              <div className={`p-2 rounded-full ${action.color}`}>
-                <action.icon className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-sm font-medium">{action.label}</span>
-            </Button>
-          ))}
-        </div>
-
-        {/* Wallets Overview */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Your Wallets</CardTitle>
-              <CardDescription>Manage your multi-currency balances</CardDescription>
-            </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Currency
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {wallets.length > 0 ? (
-              wallets.map((wallet) => (
-                <div key={wallet.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{currencyFlags[wallet.currency] || '💰'}</span>
-                    <div>
-                      <p className="font-semibold">{wallet.currency}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatBalance(wallet.balance, wallet.currency)}
-                      </p>
-                    </div>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <Link to="/real-time-wallet">
+              <Card className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-purple-500/20 backdrop-blur-sm hover:scale-105 transition-transform cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Wallet className="w-8 h-8 text-white" />
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Button>
+                  <h3 className="text-xl font-bold text-purple-200 mb-2">Real-Time Banking</h3>
+                  <p className="text-slate-400">Real bank accounts & crypto wallets with instant updates</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/advanced-dashboard">
+              <Card className="bg-gradient-to-br from-amber-900/30 to-orange-900/30 border-amber-500/20 backdrop-blur-sm hover:scale-105 transition-transform cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Zap className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-amber-200 mb-2">Advanced Features</h3>
+                  <p className="text-slate-400">AI advisor, investments & bureau de change</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/bills">
+              <Card className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-500/20 backdrop-blur-sm hover:scale-105 transition-transform cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Receipt className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-green-200 mb-2">Pay Bills</h3>
+                  <p className="text-slate-400">Airtime, data, electricity & more</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="bg-slate-800/50 border-amber-500/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex flex-col">
+                  <span className="text-slate-400 text-sm">Total Balance</span>
+                  <span className="text-2xl font-bold text-white">₦1,250,000</span>
+                  <span className="text-green-400 text-sm">+2.5% this week</span>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Wallet className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Your wallets are being set up</p>
-                <p className="text-sm">This may take a moment for new accounts</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-800/50 border-amber-500/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex flex-col">
+                  <span className="text-slate-400 text-sm">Savings</span>
+                  <span className="text-2xl font-bold text-white">₦450,000</span>
+                  <span className="text-green-400 text-sm">+5.2% this month</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-800/50 border-amber-500/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex flex-col">
+                  <span className="text-slate-400 text-sm">Investments</span>
+                  <span className="text-2xl font-bold text-white">₦320,000</span>
+                  <span className="text-green-400 text-sm">+12.7% this month</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-800/50 border-amber-500/20 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex flex-col">
+                  <span className="text-slate-400 text-sm">Crypto</span>
+                  <span className="text-2xl font-bold text-white">₦180,000</span>
+                  <span className="text-red-400 text-sm">-3.1% this week</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest transactions and updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {transactions.length > 0 ? (
+          {/* Recent Activity */}
+          <Card className="bg-slate-800/50 border-amber-500/20 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold text-amber-200 mb-4">Recent Activity</h3>
               <div className="space-y-4">
-                {transactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium capitalize">{transaction.type.replace('_', ' ')}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.description || 'Transaction'}
-                      </p>
+                <div className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg border border-amber-500/10">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-green-400">↓</span>
                     </div>
-                    <div className="text-right">
-                      <p className={`font-semibold ${
-                        ['deposit', 'transfer'].includes(transaction.type) 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {formatTransactionAmount(transaction.amount, transaction.currency, transaction.type)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(transaction.created_at).toLocaleDateString()}
-                      </p>
+                    <div>
+                      <p className="text-white font-medium">Salary Deposit</p>
+                      <p className="text-slate-400 text-sm">Today, 10:45 AM</p>
                     </div>
                   </div>
-                ))}
+                  <div className="text-right">
+                    <p className="text-green-400 font-medium">+₦350,000</p>
+                    <p className="text-slate-400 text-sm">Completed</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg border border-amber-500/10">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-red-400">↑</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Rent Payment</p>
+                      <p className="text-slate-400 text-sm">Yesterday, 2:30 PM</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-red-400 font-medium">-₦120,000</p>
+                    <p className="text-slate-400 text-sm">Completed</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg border border-amber-500/10">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-blue-400">↑</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Bitcoin Purchase</p>
+                      <p className="text-slate-400 text-sm">Jan 15, 9:15 AM</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-red-400 font-medium">-₦50,000</p>
+                    <p className="text-slate-400 text-sm">Completed</p>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No transactions yet</p>
-                <p className="text-sm">Start by adding money to your wallet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AppLayout>
   );
