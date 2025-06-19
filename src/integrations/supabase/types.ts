@@ -110,6 +110,101 @@ export type Database = {
           },
         ]
       }
+      bill_payments: {
+        Row: {
+          amount: number
+          bill_type: Database["public"]["Enums"]["service_type"]
+          created_at: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          customer_id: string
+          delivered_at: string | null
+          delivery_status: string | null
+          fee: number | null
+          flutterwave_tx_ref: string | null
+          id: string
+          metadata: Json | null
+          payment_method_id: string | null
+          processed_at: string | null
+          reloadly_transaction_id: string | null
+          service_provider_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          total_amount: number
+          user_id: string | null
+          wallet_id: string | null
+        }
+        Insert: {
+          amount: number
+          bill_type: Database["public"]["Enums"]["service_type"]
+          created_at?: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          customer_id: string
+          delivered_at?: string | null
+          delivery_status?: string | null
+          fee?: number | null
+          flutterwave_tx_ref?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method_id?: string | null
+          processed_at?: string | null
+          reloadly_transaction_id?: string | null
+          service_provider_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          total_amount: number
+          user_id?: string | null
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_type?: Database["public"]["Enums"]["service_type"]
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"]
+          customer_id?: string
+          delivered_at?: string | null
+          delivery_status?: string | null
+          fee?: number | null
+          flutterwave_tx_ref?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method_id?: string | null
+          processed_at?: string | null
+          reloadly_transaction_id?: string | null
+          service_provider_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          total_amount?: number
+          user_id?: string | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_payments_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_service_provider_id_fkey"
+            columns: ["service_provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cards: {
         Row: {
           balance: number | null
@@ -178,6 +273,118 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      deposits: {
+        Row: {
+          amount: number
+          created_at: string | null
+          crypto_hash: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          fee: number | null
+          flutterwave_tx_ref: string | null
+          id: string
+          metadata: Json | null
+          net_amount: number
+          payment_method_id: string | null
+          processed_at: string | null
+          provider_reference: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          user_id: string | null
+          wallet_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          crypto_hash?: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          fee?: number | null
+          flutterwave_tx_ref?: string | null
+          id?: string
+          metadata?: Json | null
+          net_amount: number
+          payment_method_id?: string | null
+          processed_at?: string | null
+          provider_reference?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          user_id?: string | null
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          crypto_hash?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"]
+          fee?: number | null
+          flutterwave_tx_ref?: string | null
+          id?: string
+          metadata?: Json | null
+          net_amount?: number
+          payment_method_id?: string | null
+          processed_at?: string | null
+          provider_reference?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          user_id?: string | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposits_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposits_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_structure: {
+        Row: {
+          created_at: string | null
+          currency: Database["public"]["Enums"]["currency_type"] | null
+          feature_type: string
+          fee_type: string
+          fee_value: number
+          id: string
+          is_active: boolean | null
+          max_fee: number | null
+          min_fee: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          feature_type: string
+          fee_type?: string
+          fee_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_fee?: number | null
+          min_fee?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          feature_type?: string
+          fee_type?: string
+          fee_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_fee?: number | null
+          min_fee?: number | null
+        }
+        Relationships: []
       }
       job_applications: {
         Row: {
@@ -286,6 +493,50 @@ export type Database = {
           {
             foreignKeyName: "jobs_employer_id_fkey"
             columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_methods: {
+        Row: {
+          created_at: string | null
+          details: Json
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          provider: string
+          type: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          provider: string
+          type: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          provider?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -420,6 +671,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reloadly_products: {
+        Row: {
+          country: string
+          created_at: string | null
+          currency: string | null
+          denomination_type: string | null
+          fixed_amounts: number[] | null
+          id: string
+          is_active: boolean | null
+          last_synced: string | null
+          max_amount: number | null
+          metadata: Json | null
+          min_amount: number | null
+          name: string
+          processing_time: string | null
+          provider_code: string | null
+          reloadly_product_id: number
+          service_type: Database["public"]["Enums"]["service_type"]
+        }
+        Insert: {
+          country: string
+          created_at?: string | null
+          currency?: string | null
+          denomination_type?: string | null
+          fixed_amounts?: number[] | null
+          id?: string
+          is_active?: boolean | null
+          last_synced?: string | null
+          max_amount?: number | null
+          metadata?: Json | null
+          min_amount?: number | null
+          name: string
+          processing_time?: string | null
+          provider_code?: string | null
+          reloadly_product_id: number
+          service_type: Database["public"]["Enums"]["service_type"]
+        }
+        Update: {
+          country?: string
+          created_at?: string | null
+          currency?: string | null
+          denomination_type?: string | null
+          fixed_amounts?: number[] | null
+          id?: string
+          is_active?: boolean | null
+          last_synced?: string | null
+          max_amount?: number | null
+          metadata?: Json | null
+          min_amount?: number | null
+          name?: string
+          processing_time?: string | null
+          provider_code?: string | null
+          reloadly_product_id?: number
+          service_type?: Database["public"]["Enums"]["service_type"]
+        }
+        Relationships: []
       }
       rewards: {
         Row: {
@@ -666,6 +974,92 @@ export type Database = {
           },
         ]
       }
+      transfers: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          description: string | null
+          fee: number | null
+          id: string
+          net_amount: number
+          processed_at: string | null
+          recipient_email: string | null
+          recipient_id: string | null
+          recipient_phone: string | null
+          recipient_wallet_id: string | null
+          reference: string | null
+          sender_id: string | null
+          sender_wallet_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency: Database["public"]["Enums"]["currency_type"]
+          description?: string | null
+          fee?: number | null
+          id?: string
+          net_amount: number
+          processed_at?: string | null
+          recipient_email?: string | null
+          recipient_id?: string | null
+          recipient_phone?: string | null
+          recipient_wallet_id?: string | null
+          reference?: string | null
+          sender_id?: string | null
+          sender_wallet_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"]
+          description?: string | null
+          fee?: number | null
+          id?: string
+          net_amount?: number
+          processed_at?: string | null
+          recipient_email?: string | null
+          recipient_id?: string | null
+          recipient_phone?: string | null
+          recipient_wallet_id?: string | null
+          reference?: string | null
+          sender_id?: string | null
+          sender_wallet_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_recipient_wallet_id_fkey"
+            columns: ["recipient_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_sender_wallet_id_fkey"
+            columns: ["sender_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -751,12 +1145,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_fee: {
+        Args: {
+          p_amount: number
+          p_feature_type: string
+          p_currency?: Database["public"]["Enums"]["currency_type"]
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _user_id: string
           _role: Database["public"]["Enums"]["user_role"]
         }
         Returns: boolean
+      }
+      process_transfer: {
+        Args: {
+          p_sender_id: string
+          p_recipient_id: string
+          p_amount: number
+          p_currency: Database["public"]["Enums"]["currency_type"]
+          p_description?: string
+        }
+        Returns: string
       }
       update_wallet_balance: {
         Args: { p_wallet_id: string; p_amount: number; p_operation: string }
