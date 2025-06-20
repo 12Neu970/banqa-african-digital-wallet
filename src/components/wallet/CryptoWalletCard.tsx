@@ -39,9 +39,15 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
   useEffect(() => {
     if (user) {
       fetchCryptoWallets();
-      setupRealtimeSubscription();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && cryptoWallets.length > 0) {
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
+    }
+  }, [user, cryptoWallets.length]);
 
   const fetchCryptoWallets = async () => {
     try {
@@ -66,8 +72,10 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
   };
 
   const setupRealtimeSubscription = () => {
+    const channelName = `crypto-wallets-updates-${user?.id}-${Date.now()}`;
+    
     const channel = supabase
-      .channel(`crypto-wallets-${user?.id}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -77,6 +85,7 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
           filter: `user_id=eq.${user?.id}`
         },
         (payload) => {
+          console.log('Crypto wallet update received:', payload);
           if (payload.eventType === 'INSERT') {
             setCryptoWallets(prev => [...prev, payload.new as CryptoWallet]);
             toast.success('New crypto wallet created!');
@@ -90,9 +99,12 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Crypto wallets subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up crypto wallets subscription');
       supabase.removeChannel(channel);
     };
   };

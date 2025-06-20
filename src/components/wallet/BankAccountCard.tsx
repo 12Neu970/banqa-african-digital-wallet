@@ -32,9 +32,15 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
   useEffect(() => {
     if (user) {
       fetchBankAccount();
-      setupRealtimeSubscription();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && bankAccount) {
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
+    }
+  }, [user, bankAccount]);
 
   const fetchBankAccount = async () => {
     try {
@@ -60,8 +66,10 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
   };
 
   const setupRealtimeSubscription = () => {
+    const channelName = `bank-account-updates-${user?.id}-${Date.now()}`;
+    
     const channel = supabase
-      .channel(`bank-account-${user?.id}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -71,13 +79,17 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
           filter: `user_id=eq.${user?.id}`
         },
         (payload) => {
+          console.log('Bank account update received:', payload);
           setBankAccount(payload.new as BankAccount);
           toast.success('Account balance updated!');
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Bank account subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up bank account subscription');
       supabase.removeChannel(channel);
     };
   };
