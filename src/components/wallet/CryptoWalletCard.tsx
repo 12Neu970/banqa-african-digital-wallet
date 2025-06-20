@@ -51,7 +51,11 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
         .eq('user_id', user?.id)
         .eq('is_active', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching crypto wallets:', error);
+        throw error;
+      }
+      
       setCryptoWallets(data || []);
     } catch (error) {
       console.error('Error fetching crypto wallets:', error);
@@ -63,7 +67,7 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
-      .channel('crypto-wallet-changes')
+      .channel(`crypto-wallets-${user?.id}`)
       .on(
         'postgres_changes',
         {
@@ -100,8 +104,6 @@ export function CryptoWalletCard({ onTopUp, onCreateWallet }: CryptoWalletCardPr
 
   const refreshBalances = async () => {
     setRefreshing(true);
-    // Here you would call your blockchain API to refresh balances
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
     await fetchCryptoWallets();
     setRefreshing(false);
     toast.success('Balances refreshed!');

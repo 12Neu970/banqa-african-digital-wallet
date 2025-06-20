@@ -43,9 +43,13 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
         .select('*')
         .eq('user_id', user?.id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching bank account:', error);
+        throw error;
+      }
+      
       setBankAccount(data);
     } catch (error) {
       console.error('Error fetching bank account:', error);
@@ -57,7 +61,7 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
-      .channel('bank-account-changes')
+      .channel(`bank-account-${user?.id}`)
       .on(
         'postgres_changes',
         {
@@ -114,7 +118,10 @@ export function BankAccountCard({ onTopUp }: BankAccountCardProps) {
     return (
       <Card className="bg-gradient-to-br from-red-900/30 to-orange-900/30 border-red-500/20">
         <CardContent className="p-6 text-center">
-          <p className="text-red-200">No bank account found</p>
+          <p className="text-red-200 mb-4">No bank account found</p>
+          <p className="text-slate-400 text-sm">
+            Your bank account will be created automatically. Please refresh the page or contact support.
+          </p>
         </CardContent>
       </Card>
     );

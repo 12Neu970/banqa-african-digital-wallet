@@ -15,7 +15,7 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         auth: {
           persistSession: false,
@@ -50,63 +50,53 @@ serve(async (req) => {
       })
     }
 
-    // Generate QR code data for crypto payment
-    const qrData = {
-      address: wallet.wallet_address,
-      amount: amount,
-      currency: currency,
-      memo: `Banqa top-up ${transaction_id}`
+    // Create payment with NOWPayments
+    const nowPaymentsPayload = {
+      price_amount: parseFloat(amount),
+      price_currency: 'usd', // Convert to USD first
+      pay_currency: currency.toLowerCase(),
+      order_id: transaction_id,
+      order_description: `Banqa crypto wallet top-up - ${currency}`,
+      ipn_callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/nowpayments-webhook`,
+      success_url: `${req.headers.get('origin')}/wallet?status=success`,
+      cancel_url: `${req.headers.get('origin')}/wallet?status=cancelled`
     }
 
-    // Generate a simple QR code URL (in production, use a proper QR code service)
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(JSON.stringify(qrData))}`
+    const nowPaymentsResponse = await fetch('https://api.nowpayments.io/v1/payment', {
+      method: 'POST',
+      headers: {
+        'x-api-key': Deno.env.get('NOWPAYMENTS_API_KEY') ?? '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(nowPaymentsPayload)
+    })
 
-    // Update transaction with crypto details
+    const paymentData = await nowPaymentsResponse.json()
+
+    if (!nowPaymentsResponse.ok) {
+      throw new Error(paymentData.message || 'NOWPayments API error')
+    }
+
+    // Update transaction with NOWPayments details
     await supabaseClient
       .from('real_time_transactions')
       .update({
-        provider_reference: wallet.wallet_address,
+        provider_reference: paymentData.payment_id,
         metadata: {
+          nowpayments_data: paymentData,
           wallet_address: wallet.wallet_address,
-          qr_code_url: qrCodeUrl,
           expected_amount: amount,
           currency: currency
         }
       })
       .eq('id', transaction_id)
 
-    // Simulate receiving crypto after 10 seconds (for demo purposes)
-    setTimeout(async () => {
-      try {
-        // Update wallet balance
-        await supabaseClient
-          .from('crypto_wallets')
-          .update({
-            balance: wallet.balance + parseFloat(amount)
-          })
-          .eq('id', wallet_id)
-
-        // Update transaction status
-        await supabaseClient
-          .from('real_time_transactions')
-          .update({
-            status: 'completed',
-            processed_at: new Date().toISOString(),
-            blockchain_hash: `0x${Math.random().toString(16).substring(2, 66)}`
-          })
-          .eq('id', transaction_id)
-
-      } catch (error) {
-        console.error('Error updating crypto transaction:', error)
-      }
-    }, 10000)
-
     return new Response(JSON.stringify({
       status: 'success',
-      wallet_address: wallet.wallet_address,
-      qr_code: qrCodeUrl,
-      amount: amount,
-      currency: currency
+      payment_url: paymentData.payment_url,
+      payment_address: paymentData.pay_address,
+      payment_amount: paymentData.pay_amount,
+      payment_id: paymentData.payment_id
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

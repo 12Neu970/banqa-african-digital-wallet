@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreditCard, Smartphone, Bitcoin, QrCode } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -59,9 +58,8 @@ export function TopUpModal({ open, onOpenChange, accountId, accountType, currenc
 
       if (transactionError) throw transactionError;
 
-      // Simulate payment processing with external provider
       if (accountType === 'bank') {
-        // For bank accounts, use Flutterwave or similar
+        // For bank accounts, use Flutterwave
         const { data, error } = await supabase.functions.invoke('process-bank-topup', {
           body: {
             account_id: accountId,
@@ -79,7 +77,7 @@ export function TopUpModal({ open, onOpenChange, accountId, accountType, currenc
           toast.success('Redirecting to payment...');
         }
       } else {
-        // For crypto wallets, simulate blockchain transaction
+        // For crypto wallets, use NOWPayments
         const { data, error } = await supabase.functions.invoke('process-crypto-topup', {
           body: {
             wallet_id: accountId,
@@ -92,8 +90,11 @@ export function TopUpModal({ open, onOpenChange, accountId, accountType, currenc
 
         if (error) throw error;
 
-        if (data.qr_code || data.wallet_address) {
-          toast.success('Please send crypto to the provided address');
+        if (data.payment_url) {
+          window.open(data.payment_url, '_blank');
+          toast.success('Redirecting to NOWPayments...');
+        } else if (data.payment_address) {
+          toast.success('Payment address generated! Check the transaction details.');
         }
       }
 
@@ -135,60 +136,45 @@ export function TopUpModal({ open, onOpenChange, accountId, accountType, currenc
           </div>
 
           <Tabs value={paymentMethod} onValueChange={setPaymentMethod} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800/50">
               <TabsTrigger value="card" className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 Card
               </TabsTrigger>
-              <TabsTrigger value="ussd" className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4" />
-                USSD
+              <TabsTrigger value="crypto" className="flex items-center gap-2">
+                <Bitcoin className="w-4 h-4" />
+                Crypto
               </TabsTrigger>
-              {accountType === 'crypto' && (
-                <TabsTrigger value="crypto" className="flex items-center gap-2">
-                  <Bitcoin className="w-4 h-4" />
-                  Crypto
-                </TabsTrigger>
-              )}
             </TabsList>
 
             <TabsContent value="card" className="space-y-4">
               <div className="p-4 bg-slate-800/30 rounded-lg border border-amber-500/20">
                 <div className="flex items-center gap-3 mb-2">
                   <CreditCard className="w-5 h-5 text-amber-400" />
-                  <h4 className="text-amber-200 font-medium">Card Payment</h4>
+                  <h4 className="text-amber-200 font-medium">
+                    {accountType === 'bank' ? 'Card Payment' : 'Buy with Card'}
+                  </h4>
                 </div>
                 <p className="text-slate-400 text-sm">
-                  Pay securely with your debit or credit card via Flutterwave
+                  {accountType === 'bank' 
+                    ? 'Pay securely with your debit or credit card via Flutterwave'
+                    : 'Purchase crypto using your debit or credit card via NOWPayments'
+                  }
                 </p>
               </div>
             </TabsContent>
 
-            <TabsContent value="ussd" className="space-y-4">
+            <TabsContent value="crypto" className="space-y-4">
               <div className="p-4 bg-slate-800/30 rounded-lg border border-amber-500/20">
                 <div className="flex items-center gap-3 mb-2">
-                  <Smartphone className="w-5 h-5 text-amber-400" />
-                  <h4 className="text-amber-200 font-medium">USSD Payment</h4>
+                  <QrCode className="w-5 h-5 text-amber-400" />
+                  <h4 className="text-amber-200 font-medium">Crypto Payment</h4>
                 </div>
                 <p className="text-slate-400 text-sm">
-                  Use your phone to make payment via USSD code
+                  Pay with cryptocurrency via NOWPayments secure gateway
                 </p>
               </div>
             </TabsContent>
-
-            {accountType === 'crypto' && (
-              <TabsContent value="crypto" className="space-y-4">
-                <div className="p-4 bg-slate-800/30 rounded-lg border border-amber-500/20">
-                  <div className="flex items-center gap-3 mb-2">
-                    <QrCode className="w-5 h-5 text-amber-400" />
-                    <h4 className="text-amber-200 font-medium">Crypto Transfer</h4>
-                  </div>
-                  <p className="text-slate-400 text-sm">
-                    Send {currency} directly to your wallet address
-                  </p>
-                </div>
-              </TabsContent>
-            )}
           </Tabs>
 
           <Button 
